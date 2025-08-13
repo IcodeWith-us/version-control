@@ -31,6 +31,8 @@ const gradients = [
 function QuoteCard() {
   const [quote, setQuote] = useState(quotes[0]);
   const [gradient, setGradient] = useState(gradients[0]);
+  const [favorites, setFavorites] = useState([]);
+  const [copied, setCopied] = useState(false);
 
   const getRandom = () => {
     const newQuote = quotes[Math.floor(Math.random() * quotes.length)];
@@ -39,20 +41,60 @@ function QuoteCard() {
     setGradient(newGradient);
   };
 
+  const likeQuote = () => {
+    if (!favorites.find((fav) => fav.text === quote.text)) {
+      setFavorites([...favorites, quote]);
+    }
+  };
+
+  const copyQuote = () => {
+    navigator.clipboard.writeText(`"${quote.text}" — ${quote.author}`);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  };
+
   return (
     <div
       className={`flex flex-col items-center justify-center min-h-screen p-6 bg-gradient-to-r ${gradient} text-white transition-all duration-500`}
     >
-      <div className="bg-black bg-opacity-50 p-8 rounded-2xl shadow-lg max-w-lg text-center">
-        <p className="text-2xl italic">"{quote.text}"</p>
-        <p className="mt-4 text-lg font-semibold">- {quote.author}</p>
-        <button
-          onClick={getRandom}
-          className="mt-6 px-6 py-3 bg-white text-black rounded-full hover:scale-105 transform transition duration-300"
-        >
-          New Quote
-        </button>
+      <div className="bg-black bg-opacity-50 p-8 rounded-2xl shadow-lg max-w-lg text-center transform transition duration-500 hover:scale-105">
+        <p className="text-2xl italic mb-2">"{quote.text}"</p>
+        <p className="text-lg font-semibold mb-4">- {quote.author}</p>
+
+        <div className="flex justify-center gap-3">
+          <button
+            onClick={getRandom}
+            className="px-5 py-2 bg-white text-black rounded-full hover:scale-105 transition"
+          >
+            New Quote
+          </button>
+          <button
+            onClick={likeQuote}
+            className="px-5 py-2 bg-pink-500 text-white rounded-full hover:bg-pink-600 transition"
+          >
+            ❤️ Like
+          </button>
+          <button
+            onClick={copyQuote}
+            className="px-5 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition"
+          >
+            📋 {copied ? "Copied!" : "Copy"}
+          </button>
+        </div>
       </div>
+
+      {favorites.length > 0 && (
+        <div className="mt-8 bg-white text-black p-5 rounded-xl w-full max-w-lg shadow-lg">
+          <h2 className="text-xl font-bold mb-3">⭐ Favorites</h2>
+          <ul className="space-y-2">
+            {favorites.map((fav, idx) => (
+              <li key={idx} className="border-b pb-1">
+                "{fav.text}" — <span className="font-medium">{fav.author}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
